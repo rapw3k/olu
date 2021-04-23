@@ -64,10 +64,10 @@ dct:description rdf:type owl:AnnotationProperty ;
     rdfs:isDefinedBy <http://purl.org/dc/terms/> ;
     rdfs:label "Description"@en .   
     
-dct:source rdf:type owl:AnnotationProperty ;
-    rdfs:comment "A related resource from which the described resource is derived."@en ;
-    rdfs:isDefinedBy <http://purl.org/dc/terms/> ;
-    rdfs:label "Source"@en .     
+#dct:source rdf:type rdf:Property ;
+#    rdfs:comment "A related resource from which the described resource is derived."@en ;
+#    rdfs:isDefinedBy <http://purl.org/dc/terms/> ;
+#    rdfs:label "Source"@en .     
 
 #################################################################
 #    Datatypes
@@ -85,16 +85,10 @@ dct:type
     rdfs:isDefinedBy <http://purl.org/dc/terms/> ;
     rdfs:label "Type"@en . 
 
-### https://schema.org/name
-schema:name
-  a owl:ObjectProperty ;
-  rdfs:label "name"@en ;
-  rdfs:comment "The name of the item."@en ;
-  rdfs:isDefinedBy <https://schema.org/name> .
-
 ### http://www.opengis.net/ont/geosparql#hasGeometry
 geo:hasGeometry
   a owl:ObjectProperty ;
+  rdfs:range 	geo:Geometry ;
   rdfs:isDefinedBy geo: ;
   rdfs:comment " A spatial representation for a given feature. "@en ;  
   rdfs:label "hasGeometry"@en .  
@@ -103,41 +97,50 @@ geo:hasGeometry
 :attributeOrigin
   a owl:ObjectProperty ;
   rdfs:isDefinedBy : ;
-  rdfs:domain :OLUObject ;
+  rdfs:domain :AttributeSet ;
   rdfs:range 	:AttributeOriginCode ;
-  rdfs:comment "Connects to the coded value representing the origin of the OLU attributes"@en ;  
+  rdfs:comment "Connects to the coded value representing the origin of the OLU attributes. It defines whether the set of attributes was imported together with OLUObject from the original dataset or related by model."@en ;  
   rdfs:label "attributeOrigin"@en .
   
 ### http://w3id.org/olu/model#originDataset
 :originDataset
   a owl:ObjectProperty ;
-  rdfs:domain :OLUObject ; 
+  rdfs:domain [
+  			owl:unionOf (
+          :OLUObject
+          :AttributeSet
+        ) ] ;
   rdfs:isDefinedBy : ;
   rdfs:range 	:OriginDataset ;
-  rdfs:comment "Connects to the dataset from which the object was obtained"@en ;  
+  rdfs:comment "Connects to the dataset from which OLUObject, AttributeSet is originated when original dataset was imported in the model"@en ;  
   rdfs:label "originDataset"@en .  
-  
-### http://w3id.org/olu/model#hilucsValue
-:hilucsValue
-  a owl:ObjectProperty ;
-  rdfs:isDefinedBy : ;
-  rdfs:domain :OLUObject ;
-  rdfs:range 	skos:Concept ;
-  rdfs:comment "The INSPIRE land use category"@en ;  
-  rdfs:label "hilucsValue"@en . 
   
 ### http://w3id.org/olu/model#oluTheme
 :oluTheme
   a owl:ObjectProperty ;
   rdfs:isDefinedBy : ;
   rdfs:range 	:OLUTheme ;
-  rdfs:domain [
-  			owl:unionOf (
-          :OriginDataset
-          :OLUObject
-        ) ] ;
+  rdfs:domain :OriginDataset ;
   rdfs:comment "The related open land use theme"@en ;  
   rdfs:label "oluTheme"@en . 
+
+### http://w3id.org/olu/model#hilucsValue
+:hilucsValue
+  a owl:ObjectProperty ;
+  rdfs:isDefinedBy : ;
+  rdfs:domain :AttributeSet ;
+  rdfs:range 	skos:Concept ;
+  rdfs:comment "The INSPIRE land use category"@en ;  
+  rdfs:label "hilucsValue"@en . 
+
+### http://w3id.org/olu/model#clcValue
+:clcValue
+  a owl:ObjectProperty ;
+  rdfs:isDefinedBy : ;
+  rdfs:domain :AttributeSet ;
+  rdfs:range 	skos:Concept ;
+  rdfs:comment "The Corine Land Cover category"@en ;  
+  rdfs:label "clcValue"@en . 
   
 ### http://w3id.org/olu/model#administrativeUnit
 :administrativeUnit
@@ -150,9 +153,28 @@ geo:hasGeometry
   rdfs:comment "Connect to the NUTS region representing the related administrative unit"@en ;  
   rdfs:label "administrativeUnit"@en .    
 
+### http://w3id.org/olu/model#relatedOLUObject
+:relatedOLUObject
+  a owl:ObjectProperty ;
+  rdfs:isDefinedBy : ;
+  rdfs:range 	:OLUObject ;
+  rdfs:comment "The related OLUObject"@en ;  
+  rdfs:label "relatedOLUObject"@en . 
+
+### http://w3id.org/olu/model#relatedAttributeSet
+:relatedAttributeSet
+  a owl:ObjectProperty ;
+  rdfs:isDefinedBy : ;
+  rdfs:range 	:AttributeSet ;
+  rdfs:comment "The related AttributeSet"@en ;  
+  rdfs:label "relatedAttributeSet"@en . 
+
+
+
 #################################################################
 #    Data properties
 #################################################################
+
 
 ### http://purl.org/dc/terms/identifier
 dct:identifier
@@ -161,7 +183,23 @@ dct:identifier
 		rdfs:comment "Recommended best practice is to identify the resource by means of a string conforming to a formal identification system."@en ;
     rdfs:isDefinedBy <http://purl.org/dc/terms/> ;
     rdfs:label "Identifier"@en .
-  
+
+# owl ontology defines it as objectproperty  
+### https://schema.org/name
+#schema:name
+#  a owl:DatatypeProperty ;
+#  rdfs:label "name"@en ;
+#  rdfs:comment "The name of the item."@en ;
+#  rdfs:isDefinedBy <https://schema.org/name> .
+
+# owl ontology defines it as objectproperty
+### https://schema.org/url
+#schema:url
+#  a owl:DatatypeProperty ;
+#  rdfs:label "url"@en ;
+#  rdfs:comment "The URL of the item."@en ;
+#  rdfs:isDefinedBy <https://schema.org/url> .
+
 ###  https://schema.org/validFrom
 schema:validFrom rdf:type owl:DatatypeProperty ;
 								 rdfs:comment "The date when the item becomes valid."@en ;
@@ -174,8 +212,8 @@ schema:validThrough rdf:type owl:DatatypeProperty ;
 								 rdfs:label "validThrough"@en ;
 								 rdfs:isDefinedBy <https://schema.org/validThrough> .  
   
-### http://w3id.org/olu/model#originGeoFormat
-:originGeoFormat
+### http://w3id.org/olu/model#geometryType 
+:geometryType 
   a owl:DatatypeProperty ;
   rdfs:isDefinedBy : ;
 #  rdfs:range [
@@ -185,39 +223,56 @@ schema:validThrough rdf:type owl:DatatypeProperty ;
 #          "raster"
 #        ) ] ;
   rdfs:comment "property defining origin dataset geometry format, e.g., vector or raster"@en ;  
-  rdfs:label "originGeoFormat"@en .
+  rdfs:label "geometryType"@en .
 
-### http://w3id.org/olu/model#zValue
-:zValue
-  a owl:DatatypeProperty ;
-  rdfs:isDefinedBy : ;
-  rdfs:comment "Number representing position of the feature in the stack of layers, small scale feature has lower value of z_value, large scale feature has larger value"@en ;  
-  rdfs:label "zValue"@en .
-  
-### http://w3id.org/olu/model#nonGeoAttributesAsJson
-:nonGeoAttributesAsJson
-  a owl:DatatypeProperty ;
-  rdfs:isDefinedBy : ;
-  rdfs:domain :OLUObject ;
-  rdfs:comment "The JSON representation of OLU non-geometric attributes, which came from one original dataset or were generated by one algorithm/function"@en ;  
-  rdfs:label "attributeAsJson"@en .  
-
-### http://w3id.org/olu/model#columnsAsJson
-:columnsAsJson
+### http://w3id.org/olu/model#columnsNames
+:columnsNames
   a owl:DatatypeProperty ;
   rdfs:isDefinedBy : ;
   rdfs:domain :OriginDataset ;
-  rdfs:comment "The JSON representation of column names of the origin dataset"@en ;  
-  rdfs:label "columnsAsJson"@en . 
-  
+  rdfs:comment "The List of column names of the original dataset"@en ;  
+  rdfs:label "columnsNames"@en . 
+
 ### http://w3id.org/olu/model#metadataAsXML
 :metadataAsXML
   a owl:DatatypeProperty ;
   rdfs:isDefinedBy : ;
   rdfs:domain :OriginDataset ;
-  rdfs:comment "The full XML representation of a dataset metadata in ISO 19115 format"@en ;  
+  rdfs:comment "The full XML representation of a dataset metadata in ISO 19115 format, e.g., metadata record from the metadata catalogue (produced by Micka dataset catalogue, in Micka-lite profile)"@en ;  
   rdfs:label "metadataAsXML"@en .    
-                 
+
+### http://w3id.org/olu/model#attributes 
+:attributes 
+  a owl:DatatypeProperty ;
+  rdfs:isDefinedBy : ;
+  rdfs:domain :AttributeSet ;
+  rdfs:comment "Set of other attributes of the OLUObject. It is a text containing additional attributes of an OLUObject as defined in an imported dataset, formatted in a set of key-value pairs"@en ;  
+  rdfs:label "attributes "@en .  
+
+### http://w3id.org/olu/model#zValue
+:zValue
+  a owl:DatatypeProperty ;
+  rdfs:isDefinedBy : ;
+  rdfs:comment "Number representing position of the feature in the stack of layers, small scale feature has lower value of z_value, large scale feature has larger value. The z-value defines the order of a particular object in the set of datasets."@en ;  
+  rdfs:label "zValue"@en .
+
+### http://w3id.org/olu/model#isReference
+:isReference
+  a owl:DatatypeProperty ;
+  rdfs:isDefinedBy : ;
+  rdfs:domain :OriginDataset ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "Defines whether the OriginDataset contains reference geometries or it contains thematic data imported to the model."@en ;  
+  rdfs:label "isReference"@en .
+
+### http://w3id.org/olu/model#originDescription
+:originDescription
+  a owl:DatatypeProperty ;
+  rdfs:isDefinedBy : ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Plain text description of origin of the Theme"@en ;  
+  rdfs:label "originDescription"@en .  
+  
                                                                         
 #################################################################
 #    Classes
@@ -226,96 +281,150 @@ schema:validThrough rdf:type owl:DatatypeProperty ;
 ### http://w3id.org/olu/model#OLUObject
 :OLUObject	a owl:Class ;
 			rdfs:subClassOf  gn:Feature, geo:Feature ;
+      rdfs:subClassOf  [ a owl:Restriction ;
+                           owl:cardinality  "1"^^xsd:int ;
+                           owl:onProperty   		dct:identifier
+                         ] ;
 			rdfs:subClassOf  [ a owl:Restriction ;
-                           owl:minCardinality  "1"^^xsd:int ;
+                           owl:cardinality  "1"^^xsd:int ;
                            owl:onProperty   		geo:hasGeometry
                          ] ;
       rdfs:subClassOf  [ a owl:Restriction ;
-                           owl:minCardinality  "1"^^xsd:int ;
+                           owl:cardinality  "1"^^xsd:int ;
                            owl:onProperty   		:zValue
                          ] ;
       rdfs:subClassOf  [ a owl:Restriction ;
-                           owl:minCardinality  "1"^^xsd:int ;
+                           owl:maxCardinality  "1"^^xsd:int ;
+                           owl:onProperty   		schema:validFrom
+                         ] ;
+			rdfs:subClassOf  [ a owl:Restriction ;
+                           owl:maxCardinality  "1"^^xsd:int ;
+                           owl:onProperty   		schema:validThrough
+                         ] ;                             
+      rdfs:subClassOf  [ a owl:Restriction ;
+                           owl:cardinality  "1"^^xsd:int ;
                            owl:onProperty   		:originDataset
+                         ] ;
+      rdfs:subClassOf  [ a owl:Restriction ;
+                           owl:minCardinality  "1"^^xsd:int ;
+                           owl:onProperty   		:relatedAttributeSet
                          ] ;
       rdfs:subClassOf  [ a owl:Restriction ;
                            owl:minCardinality  "1"^^xsd:int ;
                            owl:onProperty   		:administrativeUnit
                          ] ;
+			rdfs:label "OLUObject" ;   
+			rdfs:comment "This class represents the main open land use (OLU) object, which has a geometry associated. It representats a real-world phenomenon in terms of land use theme with explicit localization" ;
+			rdfs:isDefinedBy : . 
+						
+### http://w3id.org/olu/model#AttributeSet
+:AttributeSet	a owl:Class ;
       rdfs:subClassOf  [ a owl:Restriction ;
-                           owl:minCardinality  "1"^^xsd:int ;
-                           owl:onProperty   		:oluTheme
+                           owl:cardinality  "1"^^xsd:int ;
+                           owl:onProperty   		dct:identifier
                          ] ;
       rdfs:subClassOf  [ a owl:Restriction ;
-                           owl:minCardinality  "1"^^xsd:int ;
-                           owl:onProperty   		:nonGeoAttributesAsJson
+                           owl:cardinality  "1"^^xsd:int ;
+                           owl:onProperty   		:attributes
                          ] ;                   
 			rdfs:subClassOf  [ a owl:Restriction ;
-                           owl:minCardinality  "1"^^xsd:int ;
+                           owl:cardinality  "1"^^xsd:int ;
                            owl:onProperty   		:hilucsValue
                          ] ;
       rdfs:subClassOf  [ a owl:Restriction ;
-                           owl:minCardinality  "1"^^xsd:int ;
+                           owl:cardinality  "1"^^xsd:int ;
+                           owl:onProperty   		:clcValue
+                         ] ;
+      rdfs:subClassOf  [ a owl:Restriction ;
+                           owl:cardinality  "1"^^xsd:int ;
                            owl:onProperty   		:attributeOrigin
-                         ] ;                                                                     
-			rdfs:label "OLUObject" ;   
-			rdfs:comment "This class represents the main open land use (OLU) object, which has associated both geometric and non-geometric properties" ;
-			rdfs:isDefinedBy : . 
-						
+                         ] ;
+      rdfs:subClassOf  [ a owl:Restriction ;
+                           owl:allValuesFrom 	:AttributeOriginCode ;
+                           owl:onProperty   	:attributeOrigin
+                         ] ;                          
+      rdfs:subClassOf  [ a owl:Restriction ;
+                           owl:cardinality  "1"^^xsd:int ;
+                           owl:onProperty   		:originDataset
+                         ] ;
+      rdfs:subClassOf  [ a owl:Restriction ;
+                           owl:cardinality  "1"^^xsd:int ;
+                           owl:onProperty   		:relatedOLUObject
+                         ] ;                                                                      
+			rdfs:label "AttributeSet" ;   
+			rdfs:comment "This class represents the object for storing non-geometric attributes of OLUObjects" ;
+			rdfs:isDefinedBy : .             
 						
 ### http://w3id.org/olu/model#OriginDataset
 :OriginDataset	a owl:Class ;
 			rdfs:subClassOf  dcat:Dataset ;
-			rdfs:subClassOf  [ a owl:Restriction ;
-                           owl:minCardinality  "1"^^xsd:int ;
-                           owl:onProperty   		schema:name
-                         ] ;
-			rdfs:subClassOf  [ a owl:Restriction ;
-                           owl:minCardinality  "1"^^xsd:int ;
+      rdfs:subClassOf  [ a owl:Restriction ;
+                           owl:cardinality  "1"^^xsd:int ;
                            owl:onProperty   		dct:identifier
                          ] ;
-			rdfs:subClassOf  [ a owl:Restriction ;
-                           owl:minCardinality  "1"^^xsd:int ;
+#      rdfs:subClassOf  [ a owl:Restriction ;
+#                           owl:cardinality  "1"^^xsd:int ;
+#                           owl:onProperty   		schema:url
+#                         ] ;
+      rdfs:subClassOf  [ a owl:Restriction ;
+                           owl:allValuesFrom 	xsd:anyURI ;
+                           owl:onProperty   		schema:url
+                         ] ;                         
+      rdfs:subClassOf  [ a owl:Restriction ;
+                           owl:cardinality  "1"^^xsd:int ;
                            owl:onProperty   		dct:type
                          ] ;
-			rdfs:subClassOf  [ a owl:Restriction ;
+      rdfs:subClassOf  [ a owl:Restriction ;
                            owl:allValuesFrom 	:DatasetTypeCode ;
                            owl:onProperty   		dct:type
                          ] ;                         
+#      rdfs:subClassOf  [ a owl:Restriction ;
+#                           owl:cardinality  "1"^^xsd:int ;
+#                           owl:onProperty   		schema:name
+#                         ] ;
+      rdfs:subClassOf  [ a owl:Restriction ;
+                           owl:allValuesFrom 	xsd:string ;
+                           owl:onProperty   		schema:name
+                         ] ;
 			rdfs:subClassOf  [ a owl:Restriction ;
-                           owl:minCardinality  "1"^^xsd:int ;
+                           owl:maxCardinality  "1"^^xsd:int ;
                            owl:onProperty   		schema:validFrom
                          ] ;
 			rdfs:subClassOf  [ a owl:Restriction ;
-                           owl:minCardinality  "1"^^xsd:int ;
+                           owl:maxCardinality  "1"^^xsd:int ;
                            owl:onProperty   		schema:validThrough
-                         ] ;    
-      rdfs:subClassOf  [ a owl:Restriction ;
-                           owl:minCardinality  "1"^^xsd:int ;
-                           owl:onProperty   		:columnsAsJson
                          ] ; 
       rdfs:subClassOf  [ a owl:Restriction ;
-                           owl:minCardinality  "1"^^xsd:int ;
+                           owl:cardinality  "1"^^xsd:int ;
                            owl:onProperty   		:metadataAsXML
                          ] ;
       rdfs:subClassOf  [ a owl:Restriction ;
-                           owl:minCardinality  "1"^^xsd:int ;
+                           owl:cardinality  "1"^^xsd:int ;
+                           owl:onProperty   		:geometryType 
+                         ] ;   
+			rdfs:subClassOf  [ a owl:Restriction ;
+                           owl:allValuesFrom 	[ a rdfs:Datatype; owl:oneOf ("vector" "raster") ] ;
+                           owl:onProperty   		:geometryType 
+                         ] ;                                 
+      rdfs:subClassOf  [ a owl:Restriction ;
+                           owl:cardinality  "1"^^xsd:int ;
+                           owl:onProperty   		:columnsNames
+                         ] ; 
+      rdfs:subClassOf  [ a owl:Restriction ;
+                           owl:cardinality  "1"^^xsd:int ;
                            owl:onProperty   		:zValue
+                         ] ;
+      rdfs:subClassOf  [ a owl:Restriction ;
+                           owl:cardinality  "1"^^xsd:int ;
+                           owl:onProperty   		:isReference
                          ] ;
 			rdfs:subClassOf  [ a owl:Restriction ;
                            owl:minCardinality  "1"^^xsd:int ;
                            owl:onProperty   		:oluTheme
                          ] ;
-			rdfs:subClassOf  [ a owl:Restriction ;
-                           owl:minCardinality  "1"^^xsd:int ;
-                           owl:onProperty   		:originGeoFormat
-                         ] ;   
-			rdfs:subClassOf  [ a owl:Restriction ;
-                           owl:allValuesFrom 	[ a rdfs:Datatype; owl:oneOf ("vector" "raster") ] ;
-                           owl:onProperty   		:originGeoFormat
-                         ] ;                                                                                          
+			                                                                                          
 			rdfs:label "OriginDataset" ;   
-			rdfs:comment "This class represents the dataset from where an OLU object was obtained" ;
+			rdfs:comment "This class represents the dataset from where an OLU object was obtained and its metadata. This includes i) the original dataset imported to the data model containing representations of a real-world phenomena by geometric and non-geometric features; ii) the information describing spatial data sets and spatial data services, making it possible to discover, inventory and use them." ;
 			rdfs:isDefinedBy : .			 			    
 
 ### http://w3id.org/olu/model#AdministrativeUnit
@@ -345,13 +454,29 @@ schema:validThrough rdf:type owl:DatatypeProperty ;
 :OLUTheme	a owl:Class ;
 			rdfs:subClassOf  skos:Concept ;
 			rdfs:subClassOf  [ a owl:Restriction ;
-                           owl:minCardinality  "1"^^xsd:int ;
+                           owl:cardinality  "1"^^xsd:int ;
                            owl:onProperty   		dct:identifier
                          ] ;
+#      rdfs:subClassOf  [ a owl:Restriction ;
+#                           owl:cardinality  "1"^^xsd:int ;
+#                           owl:onProperty   		schema:name
+#                         ] ;
       rdfs:subClassOf  [ a owl:Restriction ;
-                           owl:minCardinality  "1"^^xsd:int ;
+                           owl:allValuesFrom 	xsd:string ;
                            owl:onProperty   		schema:name
                          ] ;
+      rdfs:subClassOf  [ a owl:Restriction ;
+                           owl:cardinality  "1"^^xsd:int ;
+                           owl:onProperty   		:originDescription
+                         ] ;
+#      rdfs:subClassOf  [ a owl:Restriction ;
+#                           owl:cardinality  "1"^^xsd:int ;
+#                           owl:onProperty   		schema:url
+#                         ] ;
+      rdfs:subClassOf  [ a owl:Restriction ;
+                           owl:allValuesFrom 	xsd:anyURI ;
+                           owl:onProperty   		schema:url
+                         ] ;                         
 			rdfs:label "OLUTheme" ;   
 			rdfs:comment "This class represents the OLU object themes, typically connected to standard classifications, ontologies or well-known registries" ;
 			rdfs:isDefinedBy : .	
